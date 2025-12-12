@@ -1,13 +1,33 @@
-# TimeXL: Explainable Weather Forecasting with Prototype-based Encoders & LLMs
+# TimeEncoder: Explainable Weather Forecasting with Prototype-based Encoder
+(Based on the idea from the NeurIPS 2025 Paper: *Explainable Multi-modal Time Series Prediction with LLM-in-the-Loop*, hereafter referred to as "the Paper".)
 
-TimeXL is an interpretable deep learning framework designed for time-series forecasting (specifically weather prediction) that combines the efficiency of **Prototype Learning** with the reasoning capabilities of **Large Language Models (LLMs)**.
+The Paper proposed a framework named **TimeXL**, an interpretable deep learning framework designed for time-series forecasting. It combines the efficiency of **Prototype Learning** with the reasoning capabilities of **Large Language Models (LLMs)**.
 
-The system uses a **Prototype-based Encoder** to learn typical weather patterns ("prototypes") from historical data, allowing it to provide "Case-Based Reasoning" explanations (e.g., "I predict Rain because the current situation looks like these 3 historical rainy days...").
+**Motivation**: I found the core idea of this paper quite interesting. However, no official implementation was available online. Therefore, for my course project this semester, I decided to attempt a practical code reproduction of the TimeXL framework.
+
+This repository focuses on reproducing the **Prototype-based Encoder** module. This encoder is designed to learn typical weather patterns ("prototypes") from historical data, enabling it to provide "Case-Based Reasoning" explanations (e.g., "I predict Rain because the current situation resembles these 3 historical rainy days...").
+
+We trained and tested this encoder on a public dataset: **Historical Hourly Weather Data 2012-2017 (HHWD)** (available on [Kaggle](https://www.kaggle.com/datasets/selfishgene/historical-hourly-weather-data)).
+
+**Prediction Task**: Given 24 hours of weather descriptions as input, the model predicts the proportional distribution over three categories (Rain, Snow, & Other) for the next 24 hours.
+
+On the test set, the predicted distribution and the actual distribution achieved a KL-divergence of only **0.08**.
+
+<img width="476" height="295" alt="Prediction Results" src="https://github.com/user-attachments/assets/9e4d8f17-2cf0-4b05-87bd-e127375d41ce" />
+
+Furthermore, we have preliminarily achieved the "explainable prototype" visualization effect. After training, you can run the instruction `python /timexl_repo/demo_interpretability.py` to see it in action.
+
+⚠️Regarding the LLM components mentioned in the Paper, we have implemented the basic functional framework (requiring users to configure their own API key to call a real LLM). However, **the prediction performance was not satisfactory.**
+*   For the **PredictionLLM**, the performance was not terrible but consistently lagged behind the results from the Prototype-based Encoder. (You can run `python compare_models.py` to see the performance comparison).
+*   For the latter two LLMs in the framework, which are mainly used to refine initial text descriptions as per the Paper, their utility seems limited for the HHWD dataset. This is because the `weather_description` field in HHWD is already highly processed, leaving little room for meaningful refinement by an LLM.
+
+Therefore, for the HHWD dataset, the practical value of employing these LLM components requires further reconsideration.
+
 
 ## 🌟 Key Features
 
 *   **Multimodal Input**: Processes both numerical time-series data (temperature, humidity, pressure) and textual descriptions (weather summaries).
-*   **Interpretability**: Uses a prototype layer to learn representative historical patterns. Every prediction is explained by citing the most similar historical examples from the training set.
+*   **Explainability**: Uses a prototype layer to learn representative historical patterns. Every prediction is explained by citing the most similar historical examples from the training set.
 *   **Distribution Prediction**: Outputs a probability distribution over weather categories (e.g., No Precipitation, Rain, Snow) rather than a single class.
 *   **LLM Integration**: Can work alongside LLMs (like DeepSeek, GPT-4) to refine predictions or generate natural language reports based on retrieved prototypes.
 
@@ -18,19 +38,19 @@ The system uses a **Prototype-based Encoder** to learn typical weather patterns 
 ```
 timexl_repo/
 ├── data/                       # Data storage and processing
-│   ├── historical-hourly-weather-data/  # Raw CSV datasets
-│   ├── processed/              # Processed PyTorch tensors (.pt)
+│   ├── historical-hourly-weather-data/  # Raw CSV datasets from https://www.kaggle.com/datasets/selfishgene/historical-hourly-weather-data
+│   ├── processed/              # Processed PyTorch tensors (.pt), where processed data has been split into training, validation, and test sets in an 8:1:1 ratio, following chronological order.
 │   ├── preprocess_data.py      # Script to clean and split data
 │   └── real_data_loader.py     # PyTorch Dataset implementation
 ├── training/                   # Core training logic
 │   ├── models.py               # TimeXLModel, PrototypeManager architecture
 │   ├── loss.py                 # Custom Loss (KL Divergence + Prototype Losses)
 │   ├── base_trainer.py         # Training loop and prototype projection
-│   └── llm_agents.py           # LLM API wrappers (PredictionLLM, ReflectionLLM)
+│   └── llm_agents.py           # LLM API wrappers (PredictionLLM, ReflectionLLM & RefinementLLM)
 ├── train_encoder.py            # Main script to train the Encoder
 ├── evaluate_encoder.py         # Script to evaluate model performance (Acc, KL, MAE)
-├── interactive_predict.py      # Interactive CLI for testing predictions
-├── compare_models.py           # Compare Encoder vs. Real LLM API
+├── interactive_predict.py      # Interactive CLI for user testing predictions
+├── compare_models.py           # run this to compare Encoder vs. Real LLM API
 ├── check_leakage.py            # Utility to verify train/test split integrity
 └── README.md                   # Project documentation
 ```
