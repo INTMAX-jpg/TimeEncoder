@@ -1,21 +1,21 @@
 # TimeEncoder: Explainable Weather Forecasting with Prototype-based Encoder
 (Based on the idea from the NeurIPS 2025 Paper: *Explainable Multi-modal Time Series Prediction with LLM-in-the-Loop*, hereafter referred to as "the Paper".)
 
-The Paper proposed a framework named **TimeXL**, an interpretable deep learning framework designed for time-series forecasting. It combines the efficiency of **Prototype Learning** with the reasoning capabilities of **Large Language Models (LLMs)**.
+🌈The Paper proposed a framework named **TimeXL**, an interpretable deep learning framework designed for time-series forecasting. It combines the efficiency of **Prototype Learning** with the reasoning capabilities of **Large Language Models (LLMs)**.
 
-**Motivation**: I found the core idea of this paper quite interesting. However, no official implementation was available online. Therefore, for my course project this semester, I decided to attempt a practical code reproduction of the TimeXL framework.
+💪**Motivation**: I found the core idea of this paper quite interesting. However, no official implementation was available online. Therefore, for my course project this semester, I decided to attempt a practical code reproduction of the TimeXL framework.
 
 This repository focuses on reproducing the **Prototype-based Encoder** module. This encoder is designed to learn typical weather patterns ("prototypes") from historical data, enabling it to provide "Case-Based Reasoning" explanations (e.g., "I predict Rain because the current situation resembles these 3 historical rainy days...").
 
 We trained and tested this encoder on a public dataset: **Historical Hourly Weather Data 2012-2017 (HHWD)** (available on [Kaggle](https://www.kaggle.com/datasets/selfishgene/historical-hourly-weather-data)).
 
-**Prediction Task**: Given 24 hours of weather descriptions as input, the model predicts the proportional distribution over three categories (Rain, Snow, & Other) for the next 24 hours.
+⭐**Prediction Task**: Given 24 hours of weather descriptions as input, the model predicts the proportional distribution over three categories (Rain, Snow, & Other) for the next 24 hours.
 
-On the test set, the predicted distribution and the actual distribution achieved a KL-divergence of only **0.08**.
+🤩On the test set, the predicted distribution and the actual distribution achieved a KL-divergence of only **0.08**.
 
 <img width="476" height="295" alt="Prediction Results" src="https://github.com/user-attachments/assets/9e4d8f17-2cf0-4b05-87bd-e127375d41ce" />
 
-Furthermore, we have preliminarily achieved the "explainable prototype" visualization effect. After training, you can run the instruction `python /timexl_repo/demo_interpretability.py` to see it in action.
+🚗Furthermore, we have preliminarily achieved the "explainable prototype" visualization effect. After training, you can run the instruction `python demo_interpretability.py` to see it in action.
 
 ⚠️Regarding the LLM components mentioned in the Paper, we have implemented the basic functional framework (requiring users to configure their own API key to call a real LLM). However, **the prediction performance was not satisfactory.**
 *   For the **PredictionLLM**, the performance was not terrible but consistently lagged behind the results from the Prototype-based Encoder. (You can run `python compare_models.py` to see the performance comparison).
